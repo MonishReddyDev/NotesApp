@@ -1,32 +1,42 @@
 import {View, Text, StyleSheet, Platform, Pressable} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 interface Note {
   title: string;
   notes: string;
+  color: string;
 }
 
 interface NotesItemProps extends Note {
   onDelete: () => void; // Callback function for handling delete action
 }
 
-const NotesItem: React.FC<NotesItemProps> = ({title, notes, onDelete}) => {
+const NotesItem: React.FC<NotesItemProps> = ({
+  title,
+  notes,
+  onDelete,
+  color,
+}) => {
   return (
     <>
-      <View style={styles.container}>
+      <View style={[styles.container, {backgroundColor: color}]}>
         <View>
           <Text style={styles.text}>{title}</Text>
-          <View style={{height: 60, padding: 6}}>
-            <Text style={[styles.text, {fontWeight: '300'}]}>{notes}</Text>
+          <View style={{height: 60, paddingBottom: 5}}>
+            <Text numberOfLines={3} style={[styles.text, {fontWeight: '300'}]}>
+              {notes}
+            </Text>
           </View>
         </View>
-        <Pressable
-          style={styles.deleteContainer}
-          onPress={onDelete} // Call the onDelete callback when pressed
-        >
-          <Icon name="delete" size={28} color={'red'} />
-        </Pressable>
+        <View style={{alignSelf: 'center'}}>
+          <Pressable
+            style={styles.deleteContainer}
+            onPress={onDelete} // Call the onDelete callback when pressed
+          >
+            <Icon name="delete" size={28} color={'red'} />
+          </Pressable>
+        </View>
       </View>
     </>
   );
@@ -36,8 +46,7 @@ export default NotesItem;
 
 const styles = StyleSheet.create({
   container: {
-    width: Platform.OS == 'android' ? 400 : 365,
-    backgroundColor: '#333333',
+    width: '95%',
     alignSelf: 'center',
     marginTop: 15,
     height: 110,
@@ -58,9 +67,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   deleteContainer: {
-    padding: 10,
+    borderWidth: 1,
     alignSelf: 'center',
+    marginRight: 20,
     justifyContent: 'center',
-    marginRight: 15,
   },
 });

@@ -8,6 +8,7 @@ import {
   Keyboard,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {defaultStyles} from '../styles/styles';
@@ -15,6 +16,7 @@ import IconComponent from '../components/IconComponent';
 import useNoteStore, {Note} from '../store/noteStore';
 import {Androidstyles} from './Homescreen';
 
+let Colors = ['#10A881', '#8B78E6', '#1287A5', '#EA7773', '#333945', '#3498DB'];
 const Notes = ({navigation, route}: any) => {
   // // Provide a default value for note in case it's not passed from route params
   const {edittitle, editnote, index} = route.params ?? {
@@ -22,16 +24,20 @@ const Notes = ({navigation, route}: any) => {
     editnote: null,
     index: null,
   };
+
+  const exist = index !== null;
+
   const [initialTitle, setInitialTitle] = useState(edittitle ?? '');
   const [initialNotes, setInitialNotes] = useState(editnote ?? '');
   const [title, setTitle] = useState(edittitle ? edittitle : '');
   const [Notes, setNotes] = useState(editnote ? editnote : '');
-  const [showAlert, setshowAlert] = useState(false);
   const addNote = useNoteStore(state => state.addNote);
   const editNote = useNoteStore(state => state.editNotes);
 
   // Check if any changes have been made to the note
-  const isNoteEdited = initialTitle !== title || initialNotes !== Notes;
+  const isNoteEdited =
+    initialTitle !== title || (initialNotes !== Notes && index !== null);
+
   console.log('is file edited:', isNoteEdited);
 
   const handleModelClose = () => {
@@ -50,7 +56,13 @@ const Notes = ({navigation, route}: any) => {
       [
         {
           text: 'Keep Changes',
-          onPress: () => navigation.navigate('Home'),
+          onPress: () => {
+            const randomIndex = Math.floor(Math.random() * Colors.length);
+            const randomColor = Colors[randomIndex];
+
+            // Pass the random color when navigating to the Home screen
+            navigation.navigate('Home', {color: randomColor});
+          },
         },
         {
           text: 'Cancel',
@@ -62,22 +74,31 @@ const Notes = ({navigation, route}: any) => {
     );
   };
 
-  const handleSave = () => {
+  const SaveNotes = () => {
     if (title !== '' && Notes !== '') {
       console.log('Notes saved');
       const updatedNote: Note = {title, notes: Notes};
-      if (index !== null && Notes !== null && isNoteEdited) {
+      if (index !== null && isNoteEdited) {
         editNote(index, updatedNote); // Update existing note
         showAlerts();
       } else {
-        const newNote: Note = {title, notes: Notes};
-        addNote(newNote); // Add new note
-        navigation.navigate('Home');
+        if (!exist) {
+          console.log('Notes nots Created');
+          const newNote: Note = {title, notes: Notes};
+          addNote(newNote); // Add new note
+        }
+
+        // Generate a random color for this item
+        const randomIndex = Math.floor(Math.random() * Colors.length);
+        const randomColor = Colors[randomIndex];
+
+        // Pass the random color when navigating to the Home screen
+        navigation.navigate('Home', {color: randomColor});
       }
       setTitle('');
       setNotes('');
     } else {
-      setshowAlert(true);
+      Alert.alert('Notes is Empty please Add some Notes');
     }
   };
 
@@ -89,11 +110,8 @@ const Notes = ({navigation, route}: any) => {
             <IconComponent name={'chevron-left'} />
           </TouchableOpacity>
           <View style={styles.buttonsStyle}>
-            <IconComponent name={'visibility'} />
-            <TouchableOpacity
-              onPress={() => {
-                handleSave();
-              }}>
+            <IconComponent name={Platform.OS == 'ios' ? 'apple' : 'android'} />
+            <TouchableOpacity onPress={SaveNotes}>
               <IconComponent name={'save'} />
             </TouchableOpacity>
           </View>

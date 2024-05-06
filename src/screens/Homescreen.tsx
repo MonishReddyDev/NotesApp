@@ -6,7 +6,6 @@ import {
   TextInput,
   FlatList,
   Image,
-  TouchableOpacity,
   StyleSheet,
   Platform,
   Pressable,
@@ -18,7 +17,8 @@ import useNoteStore from '../store/noteStore';
 import NotesItem from '../components/noteItem';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Homescreen = ({navigation}: any) => {
+const Homescreen = ({navigation, route}: any) => {
+  const {color} = route.params ?? {color: '#3B3B3B'};
   const notes = useNoteStore(state => state.notes);
   const [filteredNotes, setFilteredNotes] = useState(notes);
   const [search, setSearch] = useState('');
@@ -83,6 +83,7 @@ const Homescreen = ({navigation}: any) => {
         });
       }}>
       <NotesItem
+        color={color}
         title={item.title}
         notes={item.notes}
         onDelete={() => handleDeleteNote(index)}
@@ -154,11 +155,12 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   searchContainer: {
+    height: Platform.OS == 'ios' ? 40 : 40,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
     backgroundColor: '#3B3B3B',
-    borderRadius: 15,
+    borderRadius: 20,
   },
   Icon: {
     marginRight: 10,
