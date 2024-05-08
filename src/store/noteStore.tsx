@@ -17,7 +17,13 @@ interface NoteStore {
 
 // This is the custom hook that we can use in a React component
 const useNoteStore = create<NoteStore>(set => ({
-  notes: [],
+  notes: [
+    {
+      title: 'Good',
+      notes:
+        'The container view has a flex-direction of row to arrange its children horizontally.The titleContainer and descriptionContainer views use flex to distribute the available space. Adjust the flex values to control the width of each section.The delete button is placed in its container with a fixed width (width: 40) to ensure it remains small and is aligned to the right. Adjust the width as needed for your design.Adjust padding, margins, and other styles as per your design requirements',
+    },
+  ],
   addNote: newNote => set(state => ({notes: [...state.notes, newNote]})),
   editNotes: (index, updatedNote) =>
     set(state => {

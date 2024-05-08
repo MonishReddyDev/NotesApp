@@ -107,7 +107,7 @@ const Notes = ({navigation, route}: any) => {
       <SafeAreaView style={{marginHorizontal: 10}}>
         <View style={styles.topSectionStyle}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-            <IconComponent name={'chevron-left'} />
+            <IconComponent name={'chevron-down'} />
           </TouchableOpacity>
           <View style={styles.buttonsStyle}>
             <IconComponent name={Platform.OS == 'ios' ? 'apple' : 'android'} />
@@ -120,7 +120,6 @@ const Notes = ({navigation, route}: any) => {
         <View style={styles.container}>
           <TextInput
             multiline
-            autoCapitalize="words"
             placeholderTextColor={'#9A9A9A'}
             placeholder="Title"
             value={title}

@@ -13,12 +13,12 @@ const AppNavigation = () => {
         <Stack.Screen
           name="Home"
           component={Homescreen}
-          options={{headerShown: false}}
+          options={{headerShown: false, presentation: 'fullScreenModal'}}
         />
         <Stack.Screen
           name="AddNotes"
           component={Notes}
-          options={{headerShown: false}}
+          options={{headerShown: false, presentation: 'fullScreenModal'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

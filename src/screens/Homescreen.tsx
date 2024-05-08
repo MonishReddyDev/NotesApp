@@ -16,6 +16,7 @@ import FloatingButton from '../components/FloatingButton';
 import useNoteStore from '../store/noteStore';
 import NotesItem from '../components/noteItem';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Images from '../constants/Images';
 
 const Homescreen = ({navigation, route}: any) => {
   const {color} = route.params ?? {color: '#3B3B3B'};
@@ -48,7 +49,7 @@ const Homescreen = ({navigation, route}: any) => {
     setFilteredNotes(filterNotes(search));
   }, [notes, search]);
 
-  const handleAddNote = () => {
+  const GoToScreen = () => {
     // Handle button press action to navigate to the AddNoteScreen
     navigation.navigate('AddNotes');
   };
@@ -59,8 +60,8 @@ const Homescreen = ({navigation, route}: any) => {
         <Image
           source={
             search === '' && filteredNotes.length === 0
-              ? require('../assets/rafiki.png')
-              : require('../assets/cuate.png')
+              ? Images.NewNotesImage
+              : Images.NoNotesImage
           }
         />
         <Text style={{color: '#fff', paddingTop: 5, fontSize: 15}}>
@@ -111,7 +112,7 @@ const Homescreen = ({navigation, route}: any) => {
           />
         </View>
         {/* FlatList component */}
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, marginTop: 10}}>
           {filteredNotes.length === 0 ? (
             <>{renderEmptyNotesImage()}</>
           ) : (
@@ -131,7 +132,7 @@ const Homescreen = ({navigation, route}: any) => {
           )}
         </View>
         {/* FloatingButton */}
-        <FloatingButton onPress={handleAddNote} title="+" />
+        <FloatingButton onPress={GoToScreen} title="+" />
       </SafeAreaView>
     </View>
   );

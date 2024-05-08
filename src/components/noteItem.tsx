@@ -1,5 +1,5 @@
-import {View, Text, StyleSheet, Platform, Pressable} from 'react-native';
-import React, {useEffect} from 'react';
+import {View, Text, StyleSheet, Pressable, Dimensions} from 'react-native';
+import React from 'react';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 interface Note {
@@ -19,26 +19,23 @@ const NotesItem: React.FC<NotesItemProps> = ({
   color,
 }) => {
   return (
-    <>
-      <View style={[styles.container, {backgroundColor: color}]}>
-        <View>
-          <Text style={styles.text}>{title}</Text>
-          <View style={{height: 60, paddingBottom: 5}}>
-            <Text numberOfLines={3} style={[styles.text, {fontWeight: '300'}]}>
-              {notes}
-            </Text>
-          </View>
-        </View>
-        <View style={{alignSelf: 'center'}}>
-          <Pressable
-            style={styles.deleteContainer}
-            onPress={onDelete} // Call the onDelete callback when pressed
-          >
-            <Icon name="delete" size={28} color={'red'} />
-          </Pressable>
-        </View>
+    <View style={[styles.container, {backgroundColor: color}]}>
+      <View style={{width: '85%'}}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.Notes} numberOfLines={2}>
+          {notes}
+        </Text>
       </View>
-    </>
+      <View style={styles.deleteBtnContainer}>
+        <Icon
+          name="delete"
+          size={30}
+          color={'#a60d24'}
+          style={{padding: 10}}
+          onPress={onDelete}
+        />
+      </View>
+    </View>
   );
 };
 
@@ -46,30 +43,37 @@ export default NotesItem;
 
 const styles = StyleSheet.create({
   container: {
-    width: '95%',
-    alignSelf: 'center',
-    marginTop: 15,
-    height: 110,
-    elevation: 6,
+    marginTop: 10,
+    height: 100,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    shadowColor: '#000', // Shadow color
-    shadowOpacity: 0.3, // Shadow opacity
-    shadowOffset: {width: 0, height: 2}, // Shadow offset
-    shadowRadius: 3, // Shadow radiu
-    borderRadius: 15,
+    alignItems: 'center',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginVertical: 5,
   },
-  text: {
-    color: '#fff',
-    fontSize: 20,
-    marginLeft: 30,
+  title: {
+    alignSelf: 'flex-start',
     padding: 10,
+    color: '#b0d0d1',
+    fontSize: 20,
+    fontWeight: '800',
+  },
+  Notes: {
+    alignSelf: 'flex-start',
+    paddingLeft: 10,
+    marginBottom: 10,
     fontWeight: '600',
   },
-  deleteContainer: {
-    borderWidth: 1,
-    alignSelf: 'center',
-    marginRight: 20,
+  deleteButton: {
+    width: 40,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteBtnContainer: {
+    height: '100%',
+    width: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
