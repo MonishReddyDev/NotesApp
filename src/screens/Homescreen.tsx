@@ -66,7 +66,7 @@ const Homescreen = ({navigation, route}: any) => {
         />
         <Text style={{color: '#fff', paddingTop: 5, fontSize: 15}}>
           {search === '' && filteredNotes.length === 0
-            ? 'Create your first note!'
+            ? 'Create your first Note!'
             : 'File not found. Try searching again.'}
         </Text>
       </View>
