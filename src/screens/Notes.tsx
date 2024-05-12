@@ -15,8 +15,10 @@ import {defaultStyles} from '../styles/styles';
 import IconComponent from '../components/IconComponent';
 import useNoteStore, {Note} from '../store/noteStore';
 import {Androidstyles} from './Homescreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let Colors = ['#10A881', '#8B78E6', '#1287A5', '#EA7773', '#333945', '#3498DB'];
+
 const Notes = ({navigation, route}: any) => {
   // // Provide a default value for note in case it's not passed from route params
   const {edittitle, editnote, index} = route.params ?? {
@@ -25,7 +27,7 @@ const Notes = ({navigation, route}: any) => {
     index: null,
   };
 
-  const exist = index !== null;
+  // const exist = index !== null;
 
   const [initialTitle, setInitialTitle] = useState(edittitle ?? '');
   const [initialNotes, setInitialNotes] = useState(editnote ?? '');
@@ -37,8 +39,9 @@ const Notes = ({navigation, route}: any) => {
   // Check if any changes have been made to the note
   const isNoteEdited =
     initialTitle !== title || (initialNotes !== Notes && index !== null);
-
-  console.log('is file edited:', isNoteEdited);
+  useEffect(() => {
+    console.log('Is file edited:', isNoteEdited);
+  }, [isNoteEdited]);
 
   const handleModelClose = () => {
     Keyboard.dismiss();
@@ -74,44 +77,98 @@ const Notes = ({navigation, route}: any) => {
     );
   };
 
-  const SaveNotes = () => {
-    if (title !== '' && Notes !== '') {
-      console.log('Notes saved');
-      const updatedNote: Note = {title, notes: Notes};
-      if (index !== null && isNoteEdited) {
-        editNote(index, updatedNote); // Update existing note
-        showAlerts();
+  const SaveNotesAsync = async () => {
+    try {
+      if (title !== '' && Notes !== '') {
+        const existingDataString = await AsyncStorage.getItem('myNotes');
+        const existindData: Note[] = existingDataString
+          ? JSON.parse(existingDataString)
+          : [];
+        const updatedData = [...existindData, {title: title, notes: Notes}];
+        // Save updated data back to AsyncStorage
+        await AsyncStorage.setItem('myNotes', JSON.stringify(updatedData));
+        setTitle('');
+        setNotes('');
+        // Navigate back
+        navigation.goBack();
       } else {
-        if (!exist) {
-          console.log('Notes nots Created');
-          const newNote: Note = {title, notes: Notes};
-          addNote(newNote); // Add new note
-        }
-
-        // Generate a random color for this item
-        const randomIndex = Math.floor(Math.random() * Colors.length);
-        const randomColor = Colors[randomIndex];
-
-        // Pass the random color when navigating to the Home screen
-        navigation.navigate('Home', {color: randomColor});
+        Alert.alert('Notes is Empty please Add some Notes');
       }
-      setTitle('');
-      setNotes('');
-    } else {
-      Alert.alert('Notes is Empty please Add some Notes');
+    } catch (error) {
+      console.error('Error saving note:', error);
     }
   };
+
+  const saveEditNotes = async () => {
+    try {
+      //Get the existing Notes
+      const existingDataString = await AsyncStorage.getItem('myNotes');
+      if (existingDataString != null) {
+        //convert the notes into JSON
+        const existingData = JSON.parse(existingDataString);
+        //UPDATE the notes withe title and Notes
+        existingData[index] = {title: title, notes: Notes};
+        //SetItem => setNotes to reflext the changes
+        await AsyncStorage.setItem('myNotes', JSON.stringify(existingData));
+        if (isNoteEdited) {
+          console.log('Going to home Some Chages Made!');
+          showAlerts();
+        } else {
+          console.log('Going to home No Chages Made!');
+
+          navigation.goBack();
+        }
+      }
+    } catch (error) {
+      console.log('error while editing Notes:', error);
+    }
+  };
+
+  // const SaveNotes = () => {
+  //   if (title !== '' && Notes !== '') {
+  //     console.log('Notes saved');
+  //     const updatedNote: Note = {title, notes: Notes};
+  //     if (index !== null && isNoteEdited) {
+  //       editNote(index, updatedNote); // Update existing note
+  //       showAlerts();
+  //     } else {
+  //       if (!exist) {
+  //         console.log('Notes nots Created');
+  //         const newNote: Note = {title, notes: Notes};
+  //         addNote(newNote); // Add new note
+  //       }
+  //     }
+  //     setTitle('');
+  //     setNotes('');
+  //   } else {
+  //     Alert.alert('Notes is Empty please Add some Notes');
+  //   }
+  // };
 
   return (
     <View style={[defaultStyles.container, Androidstyles.paddingforAndroid]}>
       <SafeAreaView style={{marginHorizontal: 10}}>
         <View style={styles.topSectionStyle}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity
+            onPress={() => {
+              try {
+                navigation.goBack();
+              } catch (error) {
+                console.log(error);
+              }
+            }}>
             <IconComponent name={'chevron-down'} />
           </TouchableOpacity>
           <View style={styles.buttonsStyle}>
             <IconComponent name={Platform.OS == 'ios' ? 'apple' : 'android'} />
-            <TouchableOpacity onPress={SaveNotes}>
+            <TouchableOpacity
+              onPress={() => {
+                if (index != null || index != undefined) {
+                  saveEditNotes();
+                } else {
+                  SaveNotesAsync();
+                }
+              }}>
               <IconComponent name={'save'} />
             </TouchableOpacity>
           </View>

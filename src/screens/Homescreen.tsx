@@ -17,41 +17,48 @@ import useNoteStore from '../store/noteStore';
 import NotesItem from '../components/noteItem';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Images from '../constants/Images';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useIsFocused} from '@react-navigation/native';
 
 const Homescreen = ({navigation, route}: any) => {
+  const isFocused = useIsFocused();
   const {color} = route.params ?? {color: '#3B3B3B'};
   const notes = useNoteStore(state => state.notes);
   const [filteredNotes, setFilteredNotes] = useState(notes);
   const [search, setSearch] = useState('');
-  const {deleteNote} = useNoteStore();
-
-  const handleDeleteNote = (index: number) => {
-    deleteNote(index);
-  };
-
-  // Function to filter data based on search input
-  const filterNotes = (searchText: string) => {
-    const filteredData = notes.filter(note =>
-      note.title.toLowerCase().includes(searchText.toLowerCase()),
-    );
-    return filteredData;
-  };
-
-  // Function to handle search input change
-  const handleSearchChange = (text: string) => {
-    setSearch(text);
-    // Update filteredNotes state with the filtered data
-    setFilteredNotes(filterNotes(text));
-  };
 
   useEffect(() => {
-    // Update filteredNotes state when notes change
-    setFilteredNotes(filterNotes(search));
-  }, [notes, search]);
+    getDataAsync();
+    console.log(filteredNotes);
+  }, [isFocused]);
+
+  const getDataAsync = async () => {
+    try {
+      const notesData = await AsyncStorage.getItem('myNotes');
+      if (notesData) {
+        setFilteredNotes(JSON.parse(notesData));
+      }
+    } catch (error) {
+      console.log('getDataAsync-error-log:', error);
+    }
+  };
+
+  const asyncDelete = async (index: number) => {
+    try {
+      const tempData = filteredNotes;
+      const selectedData = tempData.filter((item: any, ind: number) => {
+        return ind != index;
+      });
+      setFilteredNotes(selectedData);
+      await AsyncStorage.setItem('myNotes', JSON.stringify(selectedData));
+    } catch (error) {
+      console.log('AsynDelete-Log', error);
+    }
+  };
 
   const GoToScreen = () => {
     // Handle button press action to navigate to the AddNoteScreen
-    navigation.navigate('AddNotes');
+    navigation.navigate('AddNotes', {filteredNotes: filteredNotes});
   };
 
   const renderEmptyNotesImage = () => {
@@ -87,7 +94,7 @@ const Homescreen = ({navigation, route}: any) => {
         color={color}
         title={item.title}
         notes={item.notes}
-        onDelete={() => handleDeleteNote(index)}
+        onDelete={() => asyncDelete(index)}
       />
     </Pressable>
   );
@@ -101,7 +108,7 @@ const Homescreen = ({navigation, route}: any) => {
           <Icon name="search" size={20} color="#999" style={styles.Icon} />
           <TextInput
             value={search}
-            onChangeText={handleSearchChange}
+            onChangeText={text => setSearch(text)}
             placeholder="Search By the Keyword..."
             clearButtonMode="always"
             placeholderTextColor={'lightgray'}
