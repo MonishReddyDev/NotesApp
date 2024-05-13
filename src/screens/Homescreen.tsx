@@ -12,8 +12,9 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {defaultStyles} from '../styles/styles';
+import filter from 'lodash.filter';
 import FloatingButton from '../components/FloatingButton';
-import useNoteStore from '../store/noteStore';
+import {Note} from '../store/noteStore';
 import NotesItem from '../components/noteItem';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Images from '../constants/Images';
@@ -23,24 +24,42 @@ import {useIsFocused} from '@react-navigation/native';
 const Homescreen = ({navigation, route}: any) => {
   const isFocused = useIsFocused();
   const {color} = route.params ?? {color: '#3B3B3B'};
-  const notes = useNoteStore(state => state.notes);
-  const [filteredNotes, setFilteredNotes] = useState(notes);
-  const [search, setSearch] = useState('');
+
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
+  const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
     getDataAsync();
-    console.log(filteredNotes);
   }, [isFocused]);
 
   const getDataAsync = async () => {
     try {
       const notesData = await AsyncStorage.getItem('myNotes');
       if (notesData) {
-        setFilteredNotes(JSON.parse(notesData));
+        const parsedNotes: Note[] = JSON.parse(notesData);
+        setNotes(parsedNotes);
+
+        // Filter data based on search query
+        setFilteredNotes(filterNotes(search, parsedNotes));
       }
     } catch (error) {
       console.log('getDataAsync-error-log:', error);
     }
+  };
+
+  // Function to filter notes based on search query
+  const filterNotes = (searchText: string, data: Note[]) => {
+    return filter(data, (note: Note) =>
+      note.title.toLowerCase().includes(searchText.toLowerCase()),
+    );
+  };
+
+  // Handle search input change
+  const handleSearchChange = (text: string) => {
+    setSearch(text);
+    // Update filteredNotes state with the filtered data
+    setFilteredNotes(filterNotes(text, notes));
   };
 
   const asyncDelete = async (index: number) => {
@@ -108,7 +127,7 @@ const Homescreen = ({navigation, route}: any) => {
           <Icon name="search" size={20} color="#999" style={styles.Icon} />
           <TextInput
             value={search}
-            onChangeText={text => setSearch(text)}
+            onChangeText={handleSearchChange}
             placeholder="Search By the Keyword..."
             clearButtonMode="always"
             placeholderTextColor={'lightgray'}
@@ -180,3 +199,6 @@ export const Androidstyles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? 20 : 0,
   },
 });
+function setNotes(parsedNotes: any) {
+  throw new Error('Function not implemented.');
+}
