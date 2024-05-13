@@ -64,12 +64,12 @@ const Homescreen = ({navigation, route}: any) => {
 
   const asyncDelete = async (index: number) => {
     try {
-      const tempData = filteredNotes;
-      const selectedData = tempData.filter((item: any, ind: number) => {
-        return ind != index;
-      });
-      setFilteredNotes(selectedData);
-      await AsyncStorage.setItem('myNotes', JSON.stringify(selectedData));
+      const tempData = [...filteredNotes]; // Create a copy of the original array
+      tempData.splice(index, 1); // Remove one element at the specified index
+
+      setFilteredNotes(tempData); // Update state with the modified array
+
+      await AsyncStorage.setItem('myNotes', JSON.stringify(tempData)); // Save modified array to AsyncStorage
     } catch (error) {
       console.log('AsynDelete-Log', error);
     }
